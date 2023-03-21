@@ -1,7 +1,8 @@
 import os
-from flask import Flask, request, render_template, redirect, flash, jsonify, session
+from flask import Flask, render_template, redirect, session
 from models import db, connect_db, User
-from forms import RegistrationForm, LoginForm
+from forms import RegistrationForm, LoginForm, OnlyCSRFForm
+from werkzeug.exceptions import Unauthorized
 
 
 app = Flask(__name__)
@@ -16,7 +17,7 @@ connect_db(app)
 
 
 @app.get('/')
-def redirect_home():
+def redirect_to_register():
     """Redirects to /register"""
 
     return redirect('/register')
@@ -29,7 +30,6 @@ def handle_register():
     form = RegistrationForm()
 
     if form.validate_on_submit():
-
         user = User.register(
             username=form.username.data,
             password=form.password.data,
@@ -41,7 +41,7 @@ def handle_register():
         db.session.add(user)
         db.session.commit()
 
-        return redirect('/secret')
+        return redirect(f'/users/{user.username}')
 
     else:
         return render_template('register.html', form=form)
@@ -54,7 +54,6 @@ def handle_login():
     form = LoginForm()
 
     if form.validate_on_submit():
-
         user = User.authenticate(
             username=form.username.data,
             password=form.password.data
@@ -63,15 +62,36 @@ def handle_login():
         if user:
             session['username'] = user.username
 
-            return redirect('/secret')
+            return redirect('/users/<username>')
 
         else:
-            form.username.errors =  ['Invalid username and/or password']
+            form.username.errors = ['Invalid username and/or password']
+
+    return render_template('login.html', form=form)
+
+
+@app.get('/users/<username>')
+def show_user_page(username):
+    """Shows user page if logged in, otherwise redirects with error"""
+
+    form = OnlyCSRFForm()
+
+    if "username" not in session:
+        raise Unauthorized()
 
     else:
-        return render_template('login.html', form=form)
+        user = User.query.get_or_404(username)
 
-@app.get('/secret')
-def secret():
+        return render_template('user.html', user=user, form=form)
 
-    return render_template('secret.html')
+
+@app.post('/logout')
+def logout_user():
+    """Logs out user"""
+
+    form = OnlyCSRFForm()
+
+    if form.validate_on_submit():
+        session.pop("username", None)
+
+    return redirect('/')

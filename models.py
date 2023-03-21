@@ -4,14 +4,12 @@ from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt()
 
 def connect_db(app):
-    """Connect this database to provided Flask app.
-
-    You should call this in your Flask app.
-    """
+    """Connect this database to provided Flask app."""
 
     app.app_context().push()
     db.app = app
     db.init_app(app)
+
 
 class User(db.Model):
     """Model for a user."""
@@ -35,14 +33,12 @@ class User(db.Model):
     @classmethod
     def authenticate(cls, username, password):
         """Validate username and password
-
         Return user if valid; else return False.
         """
 
         user = cls.query.filter_by(username=username).one_or_none()
 
         if user and bcrypt.check_password_hash(user.password, password):
-
             return user
 
         else:
