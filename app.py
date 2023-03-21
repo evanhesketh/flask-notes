@@ -62,7 +62,7 @@ def handle_login():
         if user:
             session['username'] = user.username
 
-            return redirect('/users/<username>')
+            return redirect(f'/users/{user.username}')
 
         else:
             form.username.errors = ['Invalid username and/or password']
