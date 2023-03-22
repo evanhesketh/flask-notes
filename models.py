@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt()
+#TODO: reorder
 
 def connect_db(app):
     """Connect this database to provided Flask app."""
@@ -15,7 +16,7 @@ class User(db.Model):
     """Model for a user."""
 
     __tablename__ = 'users'
-
+#TODO: put classmethods last
     @classmethod
     def register(cls, username, password, email, first_name, last_name):
         """Register user w/ hashed password and return user"""
@@ -51,7 +52,7 @@ class User(db.Model):
     )
 
     password = db.Column(
-        db.String(100),
+        db.Text,
         nullable=False
     )
 
@@ -73,3 +74,32 @@ class User(db.Model):
 
     def __repr__(self):
         return f'<username = {self.username}>'
+
+
+class Note(db.Model):
+    """Model for a note."""
+
+    __tablename__ = 'notes'
+
+    id = db.Column(
+        db.Integer,
+        autoincrement=True,
+        primary_key=True
+    )
+
+    title = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
+    content = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    owner = db.Column(
+        db.String(20),
+        db.ForeignKey('users.username')
+    )
+
+    user = db.relationship('User', backref='notes')

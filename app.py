@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, redirect, session
+from flask import Flask, render_template, redirect, session, flash
 from models import db, connect_db, User
 from forms import RegistrationForm, LoginForm, OnlyCSRFForm
 from werkzeug.exceptions import Unauthorized
@@ -30,6 +30,7 @@ def handle_register():
     form = RegistrationForm()
 
     if form.validate_on_submit():
+
         user = User.register(
             username=form.username.data,
             password=form.password.data,
@@ -41,7 +42,9 @@ def handle_register():
         db.session.add(user)
         db.session.commit()
 
-        return redirect(f'/users/{user.username}')
+
+
+        return redirect('/login') #TODO:login validation and redirect to users page
 
     else:
         return render_template('register.html', form=form)
@@ -76,7 +79,7 @@ def show_user_page(username):
 
     form = OnlyCSRFForm()
 
-    if "username" not in session:
+    if "username" : #TODO:change logic to prevent other users seemingly logged in
         raise Unauthorized()
 
     else:
@@ -95,3 +98,7 @@ def logout_user():
         session.pop("username", None)
 
     return redirect('/')
+
+##################################################################
+
+
