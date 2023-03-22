@@ -43,8 +43,9 @@ def handle_register():
         db.session.commit()
 
 
+        session['username'] = user.username
 
-        return redirect('/login') #TODO:login validation and redirect to users page
+        return redirect(f'/users/{user.username}')
 
     else:
         return render_template('register.html', form=form)
@@ -76,14 +77,14 @@ def handle_login():
 @app.get('/users/<username>')
 def show_user_page(username):
     """Shows user page if logged in, otherwise redirects with error"""
+    user = User.query.get_or_404(username)
 
     form = OnlyCSRFForm()
 
-    if "username" : #TODO:change logic to prevent other users seemingly logged in
+    if session["username"] != user.username:
         raise Unauthorized()
 
     else:
-        user = User.query.get_or_404(username)
 
         return render_template('user.html', user=user, form=form)
 
@@ -101,4 +102,26 @@ def logout_user():
 
 ##################################################################
 
+@app.post('/users/<username>/delete')
+def delete_user(username):
+    """Deletes user notes and account entirely"""
+
+    user = User.query.get_or_404(username)
+
+    if session["username"] != user.username:
+        raise Unauthorized()
+
+    else:
+        form = OnlyCSRFForm()
+        if form.validate_on_submit():
+
+            del user.notes
+            del user
+            flash(f"{user.username} deleted :(")
+
+        return redirect('/')
+
+
+@app.route("/users/<username>/notes/add", methods = ["GET", "POST"])
+def add_note(username):
 

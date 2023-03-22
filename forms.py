@@ -61,5 +61,10 @@ class LoginForm(FlaskForm):
         validators=[InputRequired(), Length(max=100)])
 
 
+
+class AddNoteForm(FlaskForm):
+    """Add note form"""
+
+
 class OnlyCSRFForm(FlaskForm):
     """Form just to add CSRF Protection"""

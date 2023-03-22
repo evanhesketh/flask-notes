@@ -16,7 +16,7 @@ class User(db.Model):
     """Model for a user."""
 
     __tablename__ = 'users'
-#TODO: put classmethods last
+
     @classmethod
     def register(cls, username, password, email, first_name, last_name):
         """Register user w/ hashed password and return user"""

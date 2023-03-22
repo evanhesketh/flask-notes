@@ -1,7 +1,5 @@
-{% extends 'base.html' %}
-{% block title %}Welcome, {{ user.first_name }}!{% endblock %}
-
-{% block content %}
+{% extends 'base.html' %} {% block title %}Welcome, {{ user.first_name }}!{%
+endblock %} {% block content %}
 
 <h1>{{ user.username }}</h1>
 
@@ -10,6 +8,25 @@
     <b>Name</b>: {{ user.first_name }} {{ user.last_name }}
   </li>
   <li class="list-group-item"><b>Email</b>: {{ user.email }}</li>
+</ul>
+
+<ul>
+  {% for note in user.notes %}
+  <li>
+    <h3>{{ note.title }}</h3>
+    <p>{{ note.content }}</p>
+    <div>
+      <a href="/notes/{{ note.id }}/update">Edit note</a>
+      <form method="POST" action="/notes/{{ note.id }}/delete">
+        {{ form.hidden_tag() }}
+        <button type="submit" class="btn btn-danger">Delete post</button>
+      </form>
+    </div>
+  </li>
+  {% endfor %}
+  <li>
+    <a href="/users/{{ user.username }}/notes/add">Add a note</a>
+  </li>
 </ul>
 
 <form method="POST" action="/logout">

@@ -1,0 +1,23 @@
+{% extends "base.html" %} {% block content %}
+<form action="/users/{{ user.username }}/notes/add" method="POST">
+  {{ form.hidden_tag() }}
+
+  {% for field in form
+      if field.widget.input_type != 'hidden' %}
+
+      <div class="form-control">
+          {{ field.label }}
+          {{ field }}
+
+          {% for error in field.errors %}
+              {{ error }}
+          {% endfor %}
+      </div>
+
+  {% endfor %}
+  <button type="submit" class="btn btn-success">Add note</button>
+</form>
+
+
+
+{% endblock %}
